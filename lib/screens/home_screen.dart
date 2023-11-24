@@ -8,12 +8,15 @@ import 'package:movies_app/controllers/search_controller.dart';
 import 'package:movies_app/widgets/search_box.dart';
 import 'package:movies_app/widgets/tab_builder.dart';
 import 'package:movies_app/widgets/top_rated_item.dart';
+import 'package:movies_app/widgets/popular_person.dart';
+import 'package:movies_app/controllers/persons_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
-
+  final PersonsController personsController = Get.put(PersonsController());
   final MoviesController controller = Get.put(MoviesController());
   final SearchController1 searchController = Get.put(SearchController1());
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -28,7 +31,7 @@ class HomeScreen extends StatelessWidget {
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'What do you want to watch?',
+                'Who do you want know?',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 24,
@@ -40,10 +43,9 @@ class HomeScreen extends StatelessWidget {
             ),
             SearchBox(
               onSumbit: () {
-                String search =
-                    Get.find<SearchController1>().searchController.text;
-                Get.find<SearchController1>().searchController.text = '';
-                Get.find<SearchController1>().search(search);
+                String search = searchController.searchController.text;
+                searchController.searchController.text = '';
+                searchController.search(search);
                 Get.find<BottomNavigatorController>().setIndex(1);
                 FocusManager.instance.primaryFocus?.unfocus();
               },
@@ -52,20 +54,21 @@ class HomeScreen extends StatelessWidget {
               height: 34,
             ),
             Obx(
-              (() => controller.isLoading.value
+              () => personsController.isLoading.value
                   ? const CircularProgressIndicator()
                   : SizedBox(
                       height: 300,
                       child: ListView.separated(
-                        itemCount: controller.mainTopRatedMovies.length,
+                        itemCount: personsController.popularPersons.length,
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         separatorBuilder: (_, __) => const SizedBox(width: 24),
-                        itemBuilder: (_, index) => TopRatedItem(
-                            movie: controller.mainTopRatedMovies[index],
-                            index: index + 1),
+                        itemBuilder: (_, index) => PopularPersonItem(
+                          person: personsController.popularPersons[index],
+                          index: index + 1,
+                        ),
                       ),
-                    )),
+                    ),
             ),
             DefaultTabController(
               length: 4,
